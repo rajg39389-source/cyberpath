@@ -314,6 +314,7 @@
     padding-left: 1.2rem; position: relative;
   }
   .topic-content ul li::before { content: '›'; position: absolute; left: 0; color: var(--cyan); }
+  .topic-content pre.code-block,
   .topic-content .code-block {
     background: #03080d; border: 1px solid var(--border); border-radius: 6px;
     padding: 1rem 1.2rem; margin: 0.8rem 0;
@@ -1824,7 +1825,7 @@ function renderCurriculum() {
             <h4>WHAT IS THIS?</h4>
             <p>${c.what}</p>
             ${c.learn ? '<h4>WHAT YOU\'LL LEARN</h4><ul>' + learnList + '</ul>' : ''}
-            ${c.code ? '<h4>CODE / COMMANDS</h4><div class="code-block">' + escapeHtml(c.code) + '</div>' : ''}
+            ${c.code ? '<h4>CODE / COMMANDS</h4><pre class="code-block" data-code="' + topic.id + '"></pre>' : ''}
             ${c.ai_tip ? '<div class="ai-tip"><strong>🤖 AI LEARNING TIP</strong><br>' + c.ai_tip + '</div>' : ''}
             ${c.resources ? '<h4>RESOURCES</h4><div class="resources-grid">' + resourceList + '</div>' : ''}
             <button class="mark-done-btn ${progress[topic.id] ? 'done' : ''}" id="btn-${topic.id}"
@@ -1866,6 +1867,14 @@ function renderCurriculum() {
     `;
     
     container.appendChild(card);
+
+    // Safely inject code content using textContent (prevents XSS execution)
+    module.topics.forEach(topic => {
+      if (topic.content && topic.content.code) {
+        const el = card.querySelector('[data-code="' + topic.id + '"]');
+        if (el) el.textContent = topic.content.code;
+      }
+    });
   });
 }
 
